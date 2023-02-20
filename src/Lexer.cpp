@@ -94,12 +94,8 @@ void Lexer::Register(void)
 
     switch (char n = eat())
     {
-        case '0' ... '8':
-            fmt::print("Register r{}\n", n);
-            break;
-        default:
-            fmt::print("Invalid register\n");
-            break;
+        case '0' ... '8': fmt::print("Register r{}\n", n); break;
+        default: fmt::print("Invalid register\n"); break;
     }
 }
 
@@ -149,22 +145,12 @@ void Lexer::Tokenizer(void)
                 fmt::print("Comma {}\n", current_char());
                 step();
                 break;
-            case '$':
-                Immediate();
-                break;
-            case 'r':
-                Register();
-                break;
+            case '$': Immediate(); break;
+            case 'r': Register(); break;
             case ' ':
-            case '\t':
-                skip();
-                break;
-            case '\n':
-                skip();
-                break;
-            default:
-                Identifier();
-                break;
+            case '\t': skip(); break;
+            case '\n': /* m_line++ */ skip(); break;
+            default: Identifier(); break;
         }
     }
 }
