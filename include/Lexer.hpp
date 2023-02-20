@@ -15,7 +15,7 @@ public:
     char current_char(void) const;
     void Tokenizer(void);
     void Immediate(void);
-    void Alpha(void);
+    void Identifier(void);
     void Register(void);
     char eat(void);
     std::size_t offset(std::size_t) const;

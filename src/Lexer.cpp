@@ -93,7 +93,7 @@ void Lexer::Tokenizer(void)
                 skip();
                 break;
             default:
-                Alpha();
+                Identifier();
                 break;
         }
     }
@@ -137,7 +137,7 @@ void Lexer::Immediate(void)
     fmt::print("Immediate {}\n", text);
 }
 
-void Lexer::Alpha(void)
+void Lexer::Identifier(void)
 {
     std::size_t start = m_index;
 
@@ -146,7 +146,7 @@ void Lexer::Alpha(void)
 
     std::size_t end = m_index - start;
     std::string_view text(m_source_code.c_str() + start, end);
-    fmt::print("Alpha {}\n", text);
+    fmt::print("Identifier {}\n", text);
 }
 
 char Lexer::eat()
