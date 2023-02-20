@@ -76,6 +76,17 @@ void Lexer::Immediate(void)
     fmt::print("Immediate {}\n", text);
 }
 
+void Lexer::Register(void)
+{
+    skip("Skipping the 'r' character");
+
+    switch (char n = eat())
+    {
+        case '0' ... '8': fmt::print("Register r{}\n", n); break;
+        default: fmt::print("Invalid register\n"); break;
+    }
+}
+
 void Lexer::Identifier(void)
 {
     std::size_t start = m_index;
@@ -86,17 +97,6 @@ void Lexer::Identifier(void)
     std::size_t end = m_index - start;
     std::string_view text(m_source_code.c_str() + start, end);
     fmt::print("Identifier {}\n", text);
-}
-
-void Lexer::Register(void)
-{
-    skip("Skipping the 'r' character");
-
-    switch (char n = eat())
-    {
-        case '0' ... '8': fmt::print("Register r{}\n", n); break;
-        default: fmt::print("Invalid register\n"); break;
-    }
 }
 
 void Lexer::Tokenizer(void)

@@ -31,7 +31,6 @@ private:
     char current_char(void) const;
 
 private:
-private:
     std::size_t m_index;
     std::string m_source_code;
 };
