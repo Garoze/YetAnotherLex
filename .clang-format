@@ -20,6 +20,7 @@ BraceWrapping:
   SplitEmptyRecord: false 
   SplitEmptyNamespace: false 
 BreakConstructorInitializers: BeforeComma
+AllowShortCaseLabelsOnASingleLine: true
 ConstructorInitializerAllOnOneLineOrOnePerLine: false
 IndentPPDirectives: None
 ...
