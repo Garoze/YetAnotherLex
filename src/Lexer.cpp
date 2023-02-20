@@ -28,9 +28,79 @@ void Lexer::skip(const std::string& msg)
     m_index++;
 }
 
+char Lexer::eat()
+{
+    return m_source_code.at(m_index++);
+}
+
+bool Lexer::is_empty(void) const
+{
+    return m_index >= m_source_code.length();
+}
+
+std::optional<char> Lexer::peek(std::size_t pos = 1)
+{
+    auto index = m_index + pos;
+
+    if (index < m_source_code.length())
+        return m_source_code.at(index);
+
+    return {};
+}
+
+std::size_t Lexer::offset(std::size_t n = 0) const
+{
+    return m_index - n;
+}
+
 char Lexer::current_char(void) const
 {
     return m_source_code.at(m_index);
+}
+
+void Lexer::Immediate(void)
+{
+    if (!std::isxdigit(peek().value()))
+    {
+        fmt::print("Exception missing immediate after $");
+    }
+
+    skip("Skipping the '$' character");
+
+    std::size_t start = offset();
+
+    while (!is_empty() && std::isxdigit(current_char()))
+        step();
+
+    std::string_view text(m_source_code.c_str() + start, offset(start));
+    fmt::print("Immediate {}\n", text);
+}
+
+void Lexer::Identifier(void)
+{
+    std::size_t start = m_index;
+
+    while (!is_empty() && std::isalnum(current_char()))
+        step();
+
+    std::size_t end = m_index - start;
+    std::string_view text(m_source_code.c_str() + start, end);
+    fmt::print("Identifier {}\n", text);
+}
+
+void Lexer::Register(void)
+{
+    skip("Skipping the 'r' character");
+
+    switch (char n = eat())
+    {
+        case '0' ... '8':
+            fmt::print("Register r{}\n", n);
+            break;
+        default:
+            fmt::print("Invalid register\n");
+            break;
+    }
 }
 
 void Lexer::Tokenizer(void)
@@ -96,76 +166,6 @@ void Lexer::Tokenizer(void)
                 Identifier();
                 break;
         }
-    }
-}
-
-std::size_t Lexer::offset(std::size_t n = 0) const
-{
-    return m_index - n;
-}
-
-std::optional<char> Lexer::peek(std::size_t pos = 1)
-{
-    auto index = m_index + pos;
-
-    if (index < m_source_code.length())
-        return m_source_code.at(index);
-
-    return {};
-}
-
-bool Lexer::is_empty(void) const
-{
-    return m_index >= m_source_code.length();
-}
-
-void Lexer::Immediate(void)
-{
-    if (!std::isxdigit(peek().value()))
-    {
-        fmt::print("Exception missing immediate after $");
-    }
-
-    skip("Skipping the '$' character");
-
-    std::size_t start = offset();
-
-    while (!is_empty() && std::isxdigit(current_char()))
-        step();
-
-    std::string_view text(m_source_code.c_str() + start, offset(start));
-    fmt::print("Immediate {}\n", text);
-}
-
-void Lexer::Identifier(void)
-{
-    std::size_t start = m_index;
-
-    while (!is_empty() && std::isalnum(current_char()))
-        step();
-
-    std::size_t end = m_index - start;
-    std::string_view text(m_source_code.c_str() + start, end);
-    fmt::print("Identifier {}\n", text);
-}
-
-char Lexer::eat()
-{
-    return m_source_code.at(m_index++);
-}
-
-void Lexer::Register(void)
-{
-    skip("Skipping the 'r' character");
-
-    switch (char n = eat())
-    {
-        case '0' ... '8':
-            fmt::print("Register r{}\n", n);
-            break;
-        default:
-            fmt::print("Invalid register\n");
-            break;
     }
 }
 
