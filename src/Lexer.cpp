@@ -116,48 +116,59 @@ L16Token Lexer::Identifier(void)
 
 L16Token Lexer::next_token()
 {
-    switch (current_char())
+    while (m_index < m_source_code.length())
     {
-        case '[': return L16Token(m_line, m_index, "OpenBracket", "["); break;
-        case ']': return L16Token(m_line, m_index, "CloseBracket", "["); break;
-        case '(': return L16Token(m_line, m_index, "OpenParen", "("); break;
-        case ')': return L16Token(m_line, m_index, "CloseParen", ")"); break;
-        case '+': return L16Token(m_line, m_index, "AddOperation", "+"); break;
-        case '-': return L16Token(m_line, m_index, "SubOperation", "-"); break;
-        case ':': return L16Token(m_line, m_index, "Column", ":"); break;
-        case ',':
-            fmt::print("comma\n");
-            return L16Token(m_line, m_index, "Comma", ",");
-            break;
-        case ' ':
-        case '\t': 
-        case '\n':
-            if (current_char() == '\n')
+        switch (current_char())
+        {
+            case '[':
+                step();
+                return L16Token(m_line, m_index, "OpenBracket", "[");
+                break;
+            case ']':
+                step();
+                return L16Token(m_line, m_index, "CloseBracket", "[");
+                break;
+            case '+':
+                step();
+                return L16Token(m_line, m_index, "AddOperation", "+");
+                break;
+            case '-':
+                step();
+                return L16Token(m_line, m_index, "SubOperation", "-");
+                break;
+            case ',':
+                step();
+                return L16Token(m_line, m_index, "Comma", ",");
+                break;
+            case ' ':
+            case '\t': skip(); break;
+            case '\n':
                 m_line++;
-            skip();
-            break;
-        case '$': return Immediate(); break;
-        case 'r': return Register(); break;
-        default: return Identifier(); break;
+                skip();
+                break;
+            case '$': return Immediate(); break;
+            case 'r': return Register(); break;
+            default: return Identifier(); break;
+        }
     }
 
     fmt::print("Line: {} Offset: {} Char: {}\n", m_line, m_index, current_char());
     exit(1);
 }
 
-void Lexer::Tokenizer(void)
+std::vector<L16Token> Lexer::Tokenizer(void)
 {
     std::vector<L16Token> tokens;
 
     while (m_index < m_source_code.length())
     {
         auto t = next_token();
-        t.print();
-
-        step();
+        tokens.push_back(t);
     }
 
     tokens.push_back(L16Token(m_line, m_index, "EOF", "EOF"));
+
+    return tokens;
 }
 
 }  // namespace Lunasm

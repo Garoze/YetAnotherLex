@@ -2,6 +2,7 @@
 
 #include <optional>
 #include <string>
+#include <vector>
 
 #include "Token.hpp"
 
@@ -12,7 +13,7 @@ class Lexer
 public:
     Lexer(const std::string&);
 
-    void Tokenizer(void);
+    std::vector<L16Token> Tokenizer(void);
 
 private:
     L16Token next_token(void);
