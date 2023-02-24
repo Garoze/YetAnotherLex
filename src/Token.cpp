@@ -12,11 +12,6 @@ L16Token::L16Token(std::size_t line, std::size_t offset, std::string kind, std::
     m_text = text;
 }
 
-std::string L16Token::kind() const
-{
-    return m_kind;
-}
-
 void L16Token::print() const
 {
     fmt::print("Token( T: {:8} Kind: {:18} Line: {:2}, Offset: {:d} )\n", m_text, m_kind, m_line, m_offset);

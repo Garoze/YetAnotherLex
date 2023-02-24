@@ -1,5 +1,6 @@
 #pragma once
 
+#include <string>
 #include <string_view>
 
 namespace Lunasm {
@@ -7,8 +8,7 @@ namespace Lunasm {
 class L16Token
 {
 public:
-    L16Token(std::size_t l, std::size_t o, std::string k, std::string_view t);
-    std::string kind() const;
+    L16Token(std::size_t line, std::size_t offset, std::string kind, std::string_view text);
 
 public:
     void print() const;
