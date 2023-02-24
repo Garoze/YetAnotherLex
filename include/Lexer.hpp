@@ -3,6 +3,8 @@
 #include <optional>
 #include <string>
 
+#include "Token.hpp"
+
 namespace Lunasm {
 
 class Lexer
@@ -13,9 +15,12 @@ public:
     void Tokenizer(void);
 
 private:
-    void Immediate(void);
-    void Identifier(void);
-    void Register(void);
+    L16Token next_token(void);
+
+private:
+    L16Token Immediate(void);
+    L16Token Identifier(void);
+    L16Token Register(void);
 
 private:
     void step(void);
@@ -31,6 +36,7 @@ private:
     char current_char(void) const;
 
 private:
+    std::size_t m_line;
     std::size_t m_index;
     std::string m_source_code;
 };

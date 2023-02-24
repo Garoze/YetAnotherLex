@@ -12,6 +12,7 @@ include_directories(
 )
 
 add_executable(${PROJECT_NAME} 
+	src/Token.cpp
 	src/Lexer.cpp
 	src/main.cpp
 )

@@ -23,4 +23,5 @@ BreakConstructorInitializers: BeforeComma
 AllowShortCaseLabelsOnASingleLine: true
 ConstructorInitializerAllOnOneLineOrOnePerLine: false
 IndentPPDirectives: None
+SortIncludes: false
 ...

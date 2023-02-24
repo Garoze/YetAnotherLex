@@ -1,14 +1,18 @@
 #include <cctype>
+#include <vector>
+#include <iostream>
 #include <string_view>
 
 #include "fmt/core.h"
 
 #include "Lexer.hpp"
+#include "Token.hpp"
 
 namespace Lunasm {
 
 Lexer::Lexer(const std::string& code)
 {
+    m_line = 1;
     m_index = 0;
     m_source_code = code;
 }
@@ -58,11 +62,12 @@ char Lexer::current_char(void) const
     return m_source_code.at(m_index);
 }
 
-void Lexer::Immediate(void)
+L16Token Lexer::Immediate(void)
 {
     if (!std::isxdigit(peek().value()))
     {
         fmt::print("Exception missing immediate after $");
+        exit(1);
     }
 
     skip("Skipping the '$' character");
@@ -73,21 +78,30 @@ void Lexer::Immediate(void)
         step();
 
     std::string_view text(m_source_code.c_str() + start, offset(start));
-    fmt::print("Immediate {}\n", text);
+
+    return L16Token(m_line, m_index, "Immediate", text);
 }
 
-void Lexer::Register(void)
+L16Token Lexer::Register(void)
 {
     skip("Skipping the 'r' character");
 
     switch (char n = eat())
     {
-        case '0' ... '8': fmt::print("Register r{}\n", n); break;
-        default: fmt::print("Invalid register\n"); break;
+        case '0' ... '8': {
+            std::string_view reg(m_source_code.c_str() + m_index - 2, 2);
+            return L16Token(m_line, m_index, "Register", reg);
+        }
+        break;
+
+        default:
+            fmt::print("Invalid register\n");
+            exit(1);
+            break;
     }
 }
 
-void Lexer::Identifier(void)
+L16Token Lexer::Identifier(void)
 {
     std::size_t start = m_index;
 
@@ -96,63 +110,54 @@ void Lexer::Identifier(void)
 
     std::size_t end = m_index - start;
     std::string_view text(m_source_code.c_str() + start, end);
-    fmt::print("Identifier {}\n", text);
+
+    return L16Token(m_line, m_index, "Identifier", text);
+}
+
+L16Token Lexer::next_token()
+{
+    switch (current_char())
+    {
+        case '[': return L16Token(m_line, m_index, "OpenBracket", "["); break;
+        case ']': return L16Token(m_line, m_index, "CloseBracket", "["); break;
+        case '(': return L16Token(m_line, m_index, "OpenParen", "("); break;
+        case ')': return L16Token(m_line, m_index, "CloseParen", ")"); break;
+        case '+': return L16Token(m_line, m_index, "AddOperation", "+"); break;
+        case '-': return L16Token(m_line, m_index, "SubOperation", "-"); break;
+        case ':': return L16Token(m_line, m_index, "Column", ":"); break;
+        case ',':
+            fmt::print("comma\n");
+            return L16Token(m_line, m_index, "Comma", ",");
+            break;
+        case ' ':
+        case '\t': 
+        case '\n':
+            if (current_char() == '\n')
+                m_line++;
+            skip();
+            break;
+        case '$': return Immediate(); break;
+        case 'r': return Register(); break;
+        default: return Identifier(); break;
+    }
+
+    fmt::print("Line: {} Offset: {} Char: {}\n", m_line, m_index, current_char());
+    exit(1);
 }
 
 void Lexer::Tokenizer(void)
 {
+    std::vector<L16Token> tokens;
+
     while (m_index < m_source_code.length())
     {
-        switch (current_char())
-        {
-            case '[':
-                fmt::print("Open bracket {}\n", current_char());
-                step();
-                break;
-            case ']':
-                fmt::print("Close bracket {}\n", current_char());
-                step();
-                break;
-            case '(':
-                fmt::print("Open paren {}\n", current_char());
-                step();
-                break;
-            case ')':
-                fmt::print("Close paren {}\n", current_char());
-                step();
-                break;
-            case '+':
-                fmt::print("Plus {}\n", current_char());
-                step();
-                break;
-            case '-':
-                fmt::print("Minus {}\n", current_char());
-                step();
-                break;
-            case '*':
-                fmt::print("Mult {}\n", current_char());
-                step();
-                break;
-            case '/':
-                fmt::print("Div {}\n", current_char());
-                step();
-                break;
-            case ':':
-                fmt::print("Colon {}\n", current_char());
-                step();
-                break;
-            case ',':
-                fmt::print("Comma {}\n", current_char());
-                step();
-                break;
-            case '$': Immediate(); break;
-            case 'r': Register(); break;
-            case ' ':
-            case '\t': skip(); break;
-            case '\n': /* m_line++ */ skip(); break;
-            default: Identifier(); break;
-        }
+        auto t = next_token();
+        t.print();
+
+        step();
     }
+
+    tokens.push_back(L16Token(m_line, m_index, "EOF", "EOF"));
 }
 
 }  // namespace Lunasm
